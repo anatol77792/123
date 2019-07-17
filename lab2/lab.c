@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mcheck.h>
 #define MAX_LEN 1024 
  
 int inp_str(char *string, int maxlen) {
@@ -83,7 +84,7 @@ int bubleSort(char **mas, int n) {
 int main(int argc, char **argv) {
     char **mas = NULL;
     int count = 0;
-    int mtrace();
+    mtrace();
     printf("Введите кол-во строк:");
     scanf("%d", &count);
     printf("n=%i\n", count);
