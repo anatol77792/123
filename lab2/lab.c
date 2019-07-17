@@ -6,13 +6,16 @@
 int inp_str(char *string, int maxlen) {
     scanf("%[^\n]", string);
     getchar();
-    return 0;
+    return strlen(string);
 }
 
 char** readMas(int count, char **mas, int maxlen) {
     for (int i = 0; i < count ; i++) {
-        mas[i] = (char *)malloc(sizeof(char)*maxlen);
-        inp_str(mas[i], maxlen);
+		char buf[MAX_LEN];
+        int len = inp_str(buf, maxlen);
+        mas[i] = (char *)malloc(sizeof(char)*len);
+        strcpy(mas[i], buf);
+        
     }
     return mas;
 }
