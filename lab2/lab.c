@@ -4,10 +4,8 @@
 #define MAX_LEN 1024 
  
 int inp_str(char *string, int maxlen) {
-    char buffer[MAX_LEN];
-    scanf("%[^\n]", buffer);
+    scanf("%[^\n]", string);
     getchar();
-    strncpy(string, buffer, maxlen);
     return 0;
 }
 
