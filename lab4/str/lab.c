@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #define SIZE_FILENAME 256
 #define SIZE_BUF 5000
@@ -47,7 +46,7 @@ main (int argc, char *argv[])
       fgets (buf, SIZE_BUF, fp);
       for (int i = 0; buf[i] != '\n'; i++)
 	{
-	  if (isdigit (buf[i]))
+	  if (buf[i] >= '0' && buf[i] <= '9')
 	    strsches = 1;
 
 	}
