@@ -4,21 +4,18 @@
 #include <mcheck.h>
 #define MAX_LEN 1024 
  
-int inp_str(char *string, int maxlen) {
-    scanf("%[^\n]", string);
-    getchar();
-    return strlen(string);
-}
 
-char** readMas(int count, char **mas, int maxlen) {
+
+void readMas(int count, char **mas, int maxlen) {
     for (int i = 0; i < count ; i++) {
 		char buf[MAX_LEN];
-        int len = inp_str(buf, maxlen);
-        mas[i] = (char *)malloc(sizeof(char)*len);
+        scanf("%[^\n]", buf);
+        getchar();
+        mas[i] = (char *)malloc(sizeof(char)*strlen(buf));
         strcpy(mas[i], buf);
         
     }
-    return mas;
+    return ;
 }
 
 void printMas(char **mas, int count) {
@@ -82,15 +79,14 @@ int bubleSort(char **mas, int n) {
 }
 
 int main(int argc, char **argv) {
-    char **mas = NULL;
     int count = 0;
     mtrace();
     printf("Введите кол-во строк:");
     scanf("%d", &count);
     printf("n=%i\n", count);
     getchar();
-    mas = (char **)malloc(sizeof(char *)*count);
-    mas = readMas(count, mas, MAX_LEN);
+    char **mas = (char **)malloc(sizeof(char *)*count);
+    readMas(count, mas, MAX_LEN);
     printMas(mas, count);
     int swichcount = bubleSort(mas, count);
 
