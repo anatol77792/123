@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 					char str[10];
 					int med = 5;
 
-
+                    signal(SIGKILL, sigquit);
 					sleep(rand() % 6);
 					sprintf(str, "%d", med);
 					send_message(msgqid,
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 				while (1) {
 					char str[10];
 					int med = -5;
-					signal(SIGKILL, sigquit);
+					
 
 					sleep(rand() % 6);
 					sprintf(str, "%d", med);
