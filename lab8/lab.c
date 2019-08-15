@@ -11,6 +11,12 @@
 #include <sys/errno.h>
 
 #define MAX_SEND_SIZE 80
+int hran = 50;
+void sigquit()
+{
+	printf("My DADDY has Killed me!!!\n");
+	exit(0);
+}
 
 struct mymsgbuf {
 	long mtype;
@@ -34,9 +40,8 @@ int read_message(int qid, struct mymsgbuf *qbuf, long type, int jii)
 {
 	qbuf->mtype = type;
 	msgrcv(qid, (struct msgbuf *) qbuf, MAX_SEND_SIZE, type, 0);
-	printf("Type: %ld Text: %s\n", qbuf->mtype, qbuf->mtext);
 	jii = jii + atoi(qbuf->mtext);
-	printf("Мишке осталось жить живет: %d\n", jii);
+	printf("Мёда в хранилище: %d\n", jii);
 
 	return jii;
 }
@@ -48,7 +53,7 @@ int main(int argc, char *argv[])
 	int qtype = 1;
 	struct mymsgbuf qbuf;
 
-	if (argc < 1) {
+	if (argc < 2) {
 		printf("Usage: количество пчел\n");
 		exit(-1);
 	}
@@ -99,7 +104,7 @@ int main(int argc, char *argv[])
 				while (1) {
 					char str[10];
 					int med = -5;
-
+					signal(SIGQUIT, sigquit);
 
 					sleep(rand() % 6);
 					sprintf(str, "%d", med);
@@ -109,34 +114,33 @@ int main(int argc, char *argv[])
 					printf
 					    (" CHILD: Это медведь поел!\n");
 					fflush(stdout);
-					sleep(rand() % 6);
+					sleep(rand() % 2);
+					signal(SIGKILL, sigquit);
 				}
 			}
 			exit(0);	/* выход из процесс-потомока */
 		}
 	}
-	// если выполняется родительский процесс
-	printf("PARENT: Это процесс-родитель!\n");
-	// ожидание окончания выполнения всех запущенных процессов
-	/* for (i = 1; i < count; i++) {
-	   status = waitpid(pid[i], &stat, 0);
-	   if (pid[i] == status) {
 
-	   }
-	   } */
 	int ji = 20;
 
-	if (ji > 0 && ji <= 50) {
-		for (i = 1; i <= count; i++) {
-			while (ji > 0 && ji <= 50) {
-				ji = read_message(msgqid, &qbuf, qtype, ji);
-			}
-		}
-	} else {
-		for (int i = 0; i < count; i++) {
-			kill(pid[i], SIGKILL);
 
-		}
+
+
+	while (ji > 0 && ji < hran) {
+
+		ji = read_message(msgqid, &qbuf, qtype, ji);
+
+	}
+	if (ji <= 0) {
+		printf("Мишка умер с голодухи\n");
+	}
+
+	if (ji >= hran) {
+		printf("Хранилище заполнено\n");
+	}
+	for (int i = 1; i <= count; i++) {
+		kill(pid[i], SIGKILL);
 	}
 	if ((rc = msgctl(msgqid, IPC_RMID, NULL)) < 0) {
 		perror(strerror(errno));
