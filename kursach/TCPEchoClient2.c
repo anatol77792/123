@@ -8,10 +8,11 @@
 #define MAX_MSG_SIZE 1024
 #define MAXRECVSTRING 100	/* Longest string to receive */
 #define FL 20
-#define SLEEP 5
+//#define SLEEP 5
 #include "amessage.pb-c.h"
 
-#define RCVBUFSIZE 32		/* Size of receive buffer */
+
+//#define RCVBUFSIZE 32         /* Size of receive buffer */
 typedef struct DATA {
 	char str[MAXRECVSTRING];
 	int t;
@@ -23,16 +24,10 @@ void DieWithError(char *errorMessage);	/* Error handling function */
 
 int main(int argc, char *argv[])
 {
-	AMessage msg = AMESSAGE__INIT; // AMessage
-    void *buf;                     // Buffer to store serialized data
-    unsigned lenn;                  // Length of serialized data
 	int sock;		/* Socket descriptor */
 	struct sockaddr_in echoServAddr;	/* Echo server address */
 	unsigned short echoServPort;	/* Echo server port */
 	//char *servIP;                    /* Server IP address (dotted quad) */
-	//char echoString[MAXRECVSTRING];	/* String to send to echo server */
-
-
 	int sock1;		/* Socket */
 	struct sockaddr_in broadcastAddr;	/* Broadcast Address */
 	unsigned short broadcastPort;	/* Port */
@@ -47,7 +42,7 @@ int main(int argc, char *argv[])
 	}
 	echoServPort = atoi(argv[2]);
 	//servIP = argv[1];             /* First arg: server IP address (dotted quad) */
-	
+
 	for (;;) {
 		while (raz != FL) {
 
@@ -81,75 +76,54 @@ int main(int argc, char *argv[])
 			raz = atoi(recvString);
 		}
 		close(sock1);
-		
-		
 
-		data.len = 1;
-		sprintf(data.str, "%s", "40");
-		data.t = 1;
-		msg.t = 40;
-		msg.len = 1;
-		msg.strr = "40";
-		lenn = amessage__get_packed_size(&msg);
-		buf = malloc(lenn);
-        amessage__pack(&msg,buf);
-		printf("Отправлено %d %d %s\n", msg.t, msg.len, msg.strr);
-		memset(&echoServAddr, 0, sizeof (echoServAddr));	/* Zero out structure */
-		echoServAddr.sin_family = AF_INET;	/* Internet address family */
-		echoServAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);	/* Server IP address */
-		echoServAddr.sin_port = htons(echoServPort);	/* Server port */
+		memset(&echoServAddr, 0, sizeof (echoServAddr));
+		echoServAddr.sin_family = AF_INET;
+		echoServAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		echoServAddr.sin_port = htons(echoServPort);
 		if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 			DieWithError("socket() failed");
-		/* Establish the connection to the echo server */
+
 		if (connect
 		    (sock, (struct sockaddr *) &echoServAddr,
 		     sizeof (echoServAddr)) < 0)
 			DieWithError("connect() failed");
-		//echoStringLen = sizeof(data);	/* Determine input length */
-		
-		/* Send the string to the server */
-		if (send(sock, buf, lenn, 0) !=
-		    lenn)
-			DieWithError
-			    ("send() sent a different number of bytes than expected");
-		free(buf);
-		
-	
-		printf("Получено: ");	/* Setup to print the echoed string */
-		CMessage *msggg;
-		
-	uint8_t buff[MAX_MSG_SIZE];
-	size_t cur_len = 0;
-	size_t nread=0;
-	while ((nread =
-		recv(sock, buff + cur_len, MAX_MSG_SIZE - cur_len,
-		     0)) != 0) {
-		cur_len += nread;
-		if (cur_len == MAX_MSG_SIZE)
-    {
-      fprintf(stderr, "max message length exceeded\n");
-      exit(1);
-    }
-	}
-	
-	size_t msgg_len = cur_len;
-	msggg = cmessage__unpack(NULL, msgg_len, buff);
-	if (msggg == NULL) {
-		fprintf(stderr, "error unpacking incoming message\n");
-		exit(1);
-	}
-	sprintf(data.str, "%s", msggg->strr);
-	data.len = msggg->len;
-	printf("received msg: %s\n", msggg->strr);
-	data.t = msggg->t;
-	cmessage__free_unpacked(msggg, NULL);
-	//	recv(sock, &data, RCVBUFSIZE - 1, 0);
-		//printf("%s", echoBuffer);	
-        printf("%d %d %s\n", data.t, data.len, data.str);
+
+
+		printf("Получено: ");
+
+		AMessage *msg;
+
+		uint8_t buf[MAX_MSG_SIZE];
+		size_t cur_len = 0;
+		size_t nread = 0;
+		while ((nread =
+			recv(sock, buf + cur_len, MAX_MSG_SIZE - cur_len,
+			     0)) != 0) {
+			cur_len += nread;
+			if (cur_len == MAX_MSG_SIZE) {
+				fprintf(stderr,
+					"max message length exceeded\n");
+				exit(1);
+			}
+		}
+
+
+		size_t msg_len = cur_len;
+		msg = amessage__unpack(NULL, msg_len, buf);
+		if (msg == NULL) {
+			fprintf(stderr,
+				"error unpacking incoming message\n");
+			exit(1);
+		}
+		sprintf(data.str, "%s", msg->strr);
+		data.len = msg->len;
+		data.t = msg->t;
+		amessage__free_unpacked(msg, NULL);
+		printf("%d %d %s\n", data.t, data.len, data.str);
 		close(sock);
 		raz = 0;
 		sleep(data.t);
-		//sleep(4);
 	}
 	exit(0);
 }

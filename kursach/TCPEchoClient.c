@@ -22,9 +22,9 @@ void DieWithError(char *errorMessage);	/* Error handling function */
 
 int main(int argc, char *argv[])
 {
-	AMessage msg = AMESSAGE__INIT; // AMessage
-    void *buf;                     // Buffer to store serialized data
-    unsigned lenn;                  // Length of serialized data
+	AMessage msg = AMESSAGE__INIT;	// AMessage
+	void *buf;		// Buffer to store serialized data
+	unsigned lenn;		// Length of serialized data
 	int sock;		/* Socket descriptor */
 	struct sockaddr_in echoServAddr;	/* Echo server address */
 	unsigned short echoServPort;	/* Echo server port */
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	}
 	echoServPort = atoi(argv[2]);
 	//servIP = argv[1];             /* First arg: server IP address (dotted quad) */
-	
+
 	for (;;) {
 		while (raz != FL) {
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 			raz = atoi(recvString);
 		}
 		close(sock1);
-		
+
 		int stime;
 		long ltime = time(NULL);
 		stime = (unsigned int) ltime / 2;
@@ -104,8 +104,8 @@ int main(int argc, char *argv[])
 		msg.strr = str;
 		lenn = amessage__get_packed_size(&msg);
 		buf = malloc(lenn);
-        amessage__pack(&msg,buf);
-		printf("Отправлено %d %d %s\n", data.t, data.len, data.str);
+		amessage__pack(&msg, buf);
+
 		memset(&echoServAddr, 0, sizeof (echoServAddr));	/* Zero out structure */
 		echoServAddr.sin_family = AF_INET;	/* Internet address family */
 		echoServAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);	/* Server IP address */
@@ -117,14 +117,14 @@ int main(int argc, char *argv[])
 		    (sock, (struct sockaddr *) &echoServAddr,
 		     sizeof (echoServAddr)) < 0)
 			DieWithError("connect() failed");
-		//echoStringLen = sizeof(data);	/* Determine input length */
-		
+		//echoStringLen = sizeof(data); /* Determine input length */
+
 		/* Send the string to the server */
-		if (send(sock, buf, lenn, 0) !=
-		    lenn)
+		if (send(sock, buf, lenn, 0) != lenn)
 			DieWithError
 			    ("send() sent a different number of bytes than expected");
-
+		printf("Отправлено %d %d %s\n", data.t, data.len,
+		       data.str);
 		close(sock);
 		raz = 0;
 		free(buf);

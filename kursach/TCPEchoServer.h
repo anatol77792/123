@@ -29,7 +29,7 @@ struct msg_buf {
 int msgqid, rc;
 
 void DieWithError(char *errorMessage);  /* Error handling function */
-void HandleTCPClient(int clntSocket);   /* TCP client handling function */
+void HandleTCPClient(int clntSocket, unsigned short echo, int clntSocket2);   /* TCP client handling function */
 void BroadcastSender(char *broadcastIP, unsigned short broadcastPort); 
 void BroadcastSender2(char *broadcastIP, unsigned short broadcastPort); 
 int CreateTCPServerSocket(unsigned short port); /* Create TCP server socket */

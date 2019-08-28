@@ -7,4 +7,4 @@ server:
 	gcc TCPEchoServer-Thread.c amessage.pb-c.c DieWithError.c HandleTCPClient.c BroadcastSender.c BroadcastSender2.c AcceptTCPConnection.c CreateTCPServerSocket.c -lpthread -lprotobuf-c -o server
 
 clean:
-	rm -f client client2 server
+	rm -f *.o client client2 server
