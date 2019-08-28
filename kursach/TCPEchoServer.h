@@ -11,12 +11,21 @@
 
 #define MSGPERM 0600    // msg queue permission
 #define MSGTXTLEN 128   // msg text length
+#define MAXRECVSTRING 100
 #define MSGKEY 32786
+typedef struct DATA1 {
+	char str[MAXRECVSTRING];
+	int t;
+	int len;
+} Data1;
+Data1 data1;
 struct msg_buf {
   long mtype;
   char mtext[MSGTXTLEN];
   int len;
-} msg;
+  int t;
+  int lens;
+} msg1;
 int msgqid, rc;
 
 void DieWithError(char *errorMessage);  /* Error handling function */

@@ -5,25 +5,32 @@
 #include <string.h>		/* for memset() */
 #include <unistd.h>		/* for close() */
 #include <time.h>
-#define MAXRECVSTRING 255	/* Longest string to receive */
+#define MAXRECVSTRING 100	/* Longest string to receive */
 #define FL 10
 #define SLEEP 5
+#include "amessage.pb-c.h"
 
 #define RCVBUFSIZE 32		/* Size of receive buffer */
+typedef struct DATA {
+	char str[MAXRECVSTRING];
+	int t;
+	int len;
+} Data;
+Data data;
 
 void DieWithError(char *errorMessage);	/* Error handling function */
 
 int main(int argc, char *argv[])
 {
+	AMessage msg = AMESSAGE__INIT; // AMessage
+    void *buf;                     // Buffer to store serialized data
+    unsigned lenn;                  // Length of serialized data
 	int sock;		/* Socket descriptor */
 	struct sockaddr_in echoServAddr;	/* Echo server address */
 	unsigned short echoServPort;	/* Echo server port */
 	//char *servIP;                    /* Server IP address (dotted quad) */
 	char echoString[MAXRECVSTRING];	/* String to send to echo server */
-	//  char echoBuffer[RCVBUFSIZE];     /* Buffer for echo string */
-	unsigned int echoStringLen;	/* Length of string to echo */
-//    int bytesRcvd, totalBytesRcvd;   /* Bytes read in single recv() 
-	//   and total bytes read */
+
 
 	int sock1;		/* Socket */
 	struct sockaddr_in broadcastAddr;	/* Broadcast Address */
@@ -31,7 +38,6 @@ int main(int argc, char *argv[])
 	char recvString[MAXRECVSTRING + 1];	/* Buffer for received string */
 	int recvStringLen;	/* Length of received string */
 	int raz;
-
 	if ((argc < 3)) {	/* Test for correct number of arguments */
 		fprintf(stderr,
 			"Usage: %s <broadcast Port> [<Echo Port>]\n",
@@ -40,17 +46,9 @@ int main(int argc, char *argv[])
 	}
 	echoServPort = atoi(argv[2]);
 	//servIP = argv[1];             /* First arg: server IP address (dotted quad) */
-	/* Second arg: string to echo */
-
-	/*  if (argc == 4)
-
-	   else
-	   echoServPort = 7;  */
+	
 	for (;;) {
 		while (raz != FL) {
-
-
-
 
 			broadcastPort = atoi(argv[1]);	// First arg: broadcast port 
 
@@ -82,7 +80,7 @@ int main(int argc, char *argv[])
 			raz = atoi(recvString);
 		}
 		close(sock1);
-		//  exit(0);
+		
 		int stime;
 		long ltime = time(NULL);
 		stime = (unsigned int) ltime / 2;
@@ -98,7 +96,16 @@ int main(int argc, char *argv[])
 		int t = rand() % SLEEP;
 		int len = strlen(str);
 		sprintf(echoString, "%d %d %s", t, len, str);
-		printf("Отправлено: %s\n", echoString);
+		data.len = len;
+		sprintf(data.str, "%s", str);
+		data.t = t;
+		msg.t = t;
+		msg.len = len;
+		msg.strr = str;
+		lenn = amessage__get_packed_size(&msg);
+		buf = malloc(lenn);
+        amessage__pack(&msg,buf);
+		printf("Отправлено %d %d %s\n", data.t, data.len, data.str);
 		memset(&echoServAddr, 0, sizeof (echoServAddr));	/* Zero out structure */
 		echoServAddr.sin_family = AF_INET;	/* Internet address family */
 		echoServAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);	/* Server IP address */
@@ -110,30 +117,17 @@ int main(int argc, char *argv[])
 		    (sock, (struct sockaddr *) &echoServAddr,
 		     sizeof (echoServAddr)) < 0)
 			DieWithError("connect() failed");
-
-		echoStringLen = strlen(echoString);	/* Determine input length */
-
+		//echoStringLen = sizeof(data);	/* Determine input length */
+		
 		/* Send the string to the server */
-		if (send(sock, echoString, echoStringLen, 0) !=
-		    echoStringLen)
+		if (send(sock, buf, lenn, 0) !=
+		    lenn)
 			DieWithError
 			    ("send() sent a different number of bytes than expected");
 
-		/* Receive the same string back from the server *alBytesRcvd = 0;
-		   printf("Received: ");              
-		   while (totalBytesRcvd < echoStringLen)
-		   {
-
-		   if ((bytesRcvd = recv(sock, echoBuffer, RCVBUFSIZE - 1, 0)) <= 0)
-		   DieWithError("recv() failed or connection closed prematurely");
-		   totalBytesRcvd += bytesRcvd;   
-		   echoBuffer[bytesRcvd] = '\0';  
-		   printf("%s", echoBuffer);      
-		   }
-
-		   printf("\n");   */
 		close(sock);
 		raz = 0;
+		free(buf);
 		sleep(4);
 	}
 	exit(0);

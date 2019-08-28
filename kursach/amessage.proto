@@ -1,0 +1,10 @@
+message AMessage {
+  required string strr = 1;
+  required int32 t=2; 
+  required int32 len=3;
+}
+message CMessage {
+  required string strr = 1;
+  required int32 t=2; 
+  required int32 len=3;
+}
